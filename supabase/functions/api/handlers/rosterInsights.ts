@@ -13,12 +13,14 @@ async function handler(req: Request) {
       app.entities.User.list().catch(() => []),
     ]);
 
-    const clientNames = Object.fromEntries(clients.map((c) => [c.id, c.full_name || 'Unknown']));
-    const workerNames = Object.fromEntries(workers.map((w) => [w.id, w.full_name || w.email || '']));
+    // Privacy: only first names leave Australia for the AI provider; no emails, surnames or contact details.
+    const firstName = (name) => String(name || '').trim().split(/\s+/)[0] || 'Unknown';
+    const clientNames = Object.fromEntries(clients.map((c) => [c.id, firstName(c.full_name)]));
+    const workerNames = Object.fromEntries(workers.map((w) => [w.id, firstName(w.full_name)]));
 
     const roster = shifts.slice(0, 200).map((s) => ({
       client: clientNames[s.client_id] || 'Unknown',
-      worker: s.worker_name || workerNames[s.worker_id] || 'Unassigned',
+      worker: workerNames[s.worker_id] || (s.worker_name ? firstName(s.worker_name) : 'Unassigned'),
       date: s.date,
       start: s.start_time,
       end: s.end_time,
@@ -28,7 +30,7 @@ async function handler(req: Request) {
     }));
 
     const needs = clients.slice(0, 80).map((c) => ({
-      name: c.full_name,
+      name: firstName(c.full_name),
       support_needs: c.support_needs,
       preferences: c.preferences,
       funding: c.funding_type,

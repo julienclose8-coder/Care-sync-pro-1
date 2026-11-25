@@ -16,7 +16,8 @@ const CATEGORY_GUIDE = {
 function buildContext(client, shift, category, subtype) {
   const lines = [];
   if (client) {
-    lines.push(`Client: ${client.full_name || ''}`);
+    // Privacy: only the client's first name is sent to the AI provider.
+    lines.push(`Client: ${String(client.full_name || '').trim().split(/\s+/)[0] || 'the client'}`);
     if (client.disability_info) lines.push(`Disability/care context: ${client.disability_info}`);
     if (category === 'medication' && client.medication_info) lines.push(`Medication administration guidelines: ${client.medication_info}`);
     if (client.support_needs) lines.push(`Support needs: ${client.support_needs}`);
