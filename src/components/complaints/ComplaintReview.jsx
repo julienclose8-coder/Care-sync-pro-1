@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,7 @@ export default function ComplaintReview({ record, onSaved }) {
   const update = (key, value) => setForm(f => ({...f,[key]:value}));
   const save = async e => {
     e.preventDefault(); setBusy(true); setError('');
-    try { const {data} = await base44.functions.invoke('complaints', {action:'update', id:record.id, ...form}); onSaved(data.record); }
+    try { const {data} = await api.functions.invoke('complaints', {action:'update', id:record.id, ...form}); onSaved(data.record); }
     catch (err) { setError(err.response?.data?.error || 'Unable to save the review.'); }
     finally { setBusy(false); }
   };

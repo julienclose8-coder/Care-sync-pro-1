@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,7 @@ export default function GoalsCard({ clientId }) {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(() => {
-    base44.entities.Goal.filter({ client_id: clientId }, "-created_date")
+    api.entities.Goal.filter({ client_id: clientId }, "-created_date")
       .then(setGoals)
       .catch(() => setGoals([]));
   }, [clientId]);
@@ -45,8 +45,8 @@ export default function GoalsCard({ clientId }) {
     setSaving(true);
     try {
       const { id, created_date, updated_date, created_by_id, client_id, ...payload } = form;
-      if (editing?.id) await base44.entities.Goal.update(editing.id, payload);
-      else await base44.entities.Goal.create({ ...payload, client_id: clientId });
+      if (editing?.id) await api.entities.Goal.update(editing.id, payload);
+      else await api.entities.Goal.create({ ...payload, client_id: clientId });
       setOpen(false);
       load();
     } finally {
@@ -56,7 +56,7 @@ export default function GoalsCard({ clientId }) {
 
   const handleDelete = async (goal) => {
     if (!window.confirm(`Delete goal "${goal.title}"?`)) return;
-    await base44.entities.Goal.delete(goal.id);
+    await api.entities.Goal.delete(goal.id);
     load();
   };
 

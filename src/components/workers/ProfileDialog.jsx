@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ export default function ProfileDialog({ open, onOpenChange, onSaved, onRequestLe
 
   useEffect(() => {
     if (!open) return;
-    base44.auth
+    api.auth
       .me()
       .then((me) => {
         setPhone(me.phone || "");
@@ -31,7 +31,7 @@ export default function ProfileDialog({ open, onOpenChange, onSaved, onRequestLe
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.auth.updateMe({ phone, address });
+      await api.auth.updateMe({ phone, address });
       onOpenChange(false);
       if (onSaved) onSaved();
     } finally {

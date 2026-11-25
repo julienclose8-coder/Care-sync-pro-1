@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +12,7 @@ export default function LeaveRequestForm({ workerId, onSaved }) {
   const submit = async event => {
     event.preventDefault(); setBusy(true); setError(''); setSuccess(false);
     try {
-      await base44.functions.invoke('workerLeave', { action: 'submit', worker_id: workerId, ...value });
+      await api.functions.invoke('workerLeave', { action: 'submit', worker_id: workerId, ...value });
       setValue(empty); setSuccess(true); onSaved();
     } catch (err) { setError(err.response?.data?.error || 'Unable to submit your request.'); }
     finally { setBusy(false); }

@@ -1,62 +1,69 @@
-# Base44 Project
+# CareSync Pro
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+Care agency app for NDIS and disability support: clients, care notes, rosters, timesheets, leave, complaints and invoices.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+- **Frontend:** React 18 + Vite + Tailwind (`src/`). Builds to static files in `dist/`.
+- **Backend:** Supabase, Sydney region (`ap-southeast-2`), project `wcrbdotwhvbukzcscktb`.
+  - Postgres with Row Level Security on every table (`supabase/migrations/`).
+  - Supabase Auth for sign-in (email + password, email codes, password reset).
+  - Private `documents` storage bucket; files open through short-lived signed links.
+  - One Edge Function, `api`, that serves every server action (`supabase/functions/api/`).
 
-## Prerequisites
-
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-5. Install [Deno](https://docs.deno.com/runtime/getting_started/installation/) — the local Base44 backend runs on it.
-
-Run `base44 --help` (or see the [CLI reference](https://docs.base44.com/developers/references/cli/commands/introduction)) for the full command surface.
-
-## Run Locally
-
-Three commands, from the project root:
+## Run locally
 
 ```bash
-base44 login   # one-time per machine
-base44 link    # one-time per clone
-base44 dev     # local backend + frontend together
+npm install
+cp .env.example .env.local
+npm run dev
 ```
 
-Open the frontend URL that `base44 dev` prints (typically `http://localhost:5173`).
+Open http://localhost:5173.
 
-Notes:
+## Deploy
 
-- **Every fresh clone needs `base44 link`.** It writes `base44/.app.jsonc` (the app-id pointer), which is deliberately gitignored. Your app id is in the Builder URL (`app.base44.com/apps/<id>/...`); `base44 link --help` shows the non-interactive flags.
-- **`base44 dev` runs the frontend for you** (via `site.serveCommand` in this repo's `base44/config.jsonc`) — never run `npm run dev` yourself: alone it serves a UI with no backend behind it (`[base44] Proxy not enabled`, every `/api` call fails), and alongside `base44 dev` the second Vite silently takes the next port and you end up looking at the wrong one.
-- **The app must be published at least once for the UI to load under `base44 dev`.** The frontend boots by fetching app settings from the hosted app; before the first publish that fails and every page redirects to login. The local API works regardless.
-- Entities, functions, and auth run locally — entity data is **in-memory only**, wiped when `base44 dev` restarts. Everything else (Core integrations, OAuth login) is forwarded to your deployed app. Full breakdown: [Local development overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview).
+**Database:** migrations in `supabase/migrations/` are applied to the Supabase project. Add new changes as new migration files; never edit an applied one.
 
-## Frontend Only, Hosted Backend
+**Server functions:** the GitHub Actions workflow `.github/workflows/deploy-supabase.yml` deploys the `api` function when `supabase/functions/` changes on `main`, or when run by hand. It needs the repository secret `SUPABASE_ACCESS_TOKEN` (a personal access token from Supabase, Account > Access tokens).
 
-To work on just the frontend against your app's live hosted backend:
+Function secrets, set in Supabase under Edge Functions > Secrets:
 
-```bash
-base44 dev --remote
+| Secret | Purpose |
+| --- | --- |
+| `ALLOWED_ORIGINS` | Optional. Comma-separated origins allowed to call the API. Defaults to `https://caresyncpro1.com,https://www.caresyncpro1.com,http://localhost:5173`. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Optional. Sends app emails through Resend. Emails are skipped when unset. |
+| `ANTHROPIC_API_KEY` | Optional. Enables the AI care-note and roster helpers. Only set this once you have decided client information may be sent to the AI provider. |
+| `ANTHROPIC_MODEL` | Optional. Overrides the AI model (default `claude-opus-5-5`). |
+
+**Website:** `npm run build` and upload the contents of `dist/` to the web root for caresyncpro1.com (for example `public_html` on cPanel). The app is a single-page app, so add this `.htaccess` next to `index.html`:
+
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
 ```
 
-⚠️ In this mode writes go to your app's **production data** — plain `base44 dev` keeps everything local.
+The workflow also uploads a built `website` artifact you can download and upload.
 
-## Publish Your Changes
+## Supabase Auth settings
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+In Supabase under Authentication:
 
-```bash
-base44 dashboard open
+- **URL configuration:** Site URL `https://caresyncpro1.com`; redirect URLs `https://caresyncpro1.com/**`, `https://www.caresyncpro1.com/**`, `http://localhost:5173/**`.
+- **Email templates:** the sign-up confirmation email must include `{{ .Token }}`, because the app asks for the 6-digit code.
+- **SMTP:** set a custom SMTP sender for production; the built-in sender is rate-limited.
+- Turn on leaked-password protection.
+
+## First admin
+
+Sign up in the app, then run in the Supabase SQL editor:
+
+```sql
+update public.profiles set role = 'admin', is_owner = true where email = 'you@example.com';
 ```
 
-This repo syncs to Base44 through git, so publish from the dashboard rather than `base44 deploy` — a CLI deploy ships your local tree directly, bypassing the sync, and the deployed state silently diverges from the repo.
+`is_owner` marks the business owner (Level 12, CEO). Only one person should have it.
 
-## Docs & Support
+## Privacy and security
 
-GitHub integration: [https://docs.base44.com/developers/app-code/local-development/github](https://docs.base44.com/developers/app-code/local-development/github)
-
-Local development: [https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Client personal and health information is stored only in Australia (Supabase Sydney). Access is enforced in the database: support workers see their own shifts and assigned clients, clients see their own records, and admins manage everything. Owner-only tables control staff access levels. Before going live, complete a privacy policy, a data breach response plan and a privacy impact assessment (NSW HRIP Act, Privacy Act APPs, NDIS Practice Standards).

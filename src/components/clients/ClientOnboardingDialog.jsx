@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { settingDefaults, settingPayload } from '@/lib/supportSettings';
@@ -29,7 +29,7 @@ export default function ClientOnboardingDialog({ open, onOpenChange, initial, on
       const hours = Number(form.weekly_hours), rate = Number(form.quoted_hourly_rate);
       const onboarding = { service_type: form.service_type.trim(), weekly_hours: hours, quoted_hourly_rate: rate, weekly_estimate: Math.round(hours * rate * 100) / 100, quotation_notes: form.quotation_notes.trim(), required_documents: [...new Set(form.documents_text.split('\n').map(s => s.trim()).filter(Boolean))], completed_at: initial?.onboarding?.completed_at || new Date().toISOString() };
       const payload = { ...identity, ...settingPayload(form), onboarding };
-      if (initial?.id) await base44.entities.Client.update(initial.id, payload); else await base44.entities.Client.create({ ...payload, status: 'active' });
+      if (initial?.id) await api.entities.Client.update(initial.id, payload); else await api.entities.Client.create({ ...payload, status: 'active' });
       onOpenChange(false); await onSaved();
     } catch (err) { setError(err.message || 'Unable to save onboarding.'); }
     finally { setSaving(false); }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,8 +48,8 @@ export default function ClientForm({ open, onOpenChange, initial, onSaved }) {
       if (!payload.date_of_birth) delete payload.date_of_birth;
       if (!payload.email) delete payload.email;
       Object.keys(payload).forEach((key) => payload[key] == null && delete payload[key]);
-      if (initial?.id) await base44.entities.Client.update(initial.id, payload);
-      else await base44.entities.Client.create(payload);
+      if (initial?.id) await api.entities.Client.update(initial.id, payload);
+      else await api.entities.Client.create(payload);
       onOpenChange(false);
       onSaved();
     } catch (err) {

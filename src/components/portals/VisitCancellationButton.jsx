@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BellRing } from "lucide-react";
-import { formatDate, formatTime } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 
 export default function VisitCancellationButton({ client, shift, requests, onSent }) {
   const [stage, setStage] = useState(null);
@@ -15,7 +15,7 @@ export default function VisitCancellationButton({ client, shift, requests, onSen
     setSending(true);
     setError("");
     try {
-      await base44.functions.invoke("cancelClientShift", { shift_id: shift.id });
+      await api.functions.invoke("cancelClientShift", { shift_id: shift.id });
       await onSent();
       setStage("sent");
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,8 +51,8 @@ export default function InvoiceForm({ open, onOpenChange, initial, preset, clien
         hourly_rate: Number(form.hourly_rate) || 0,
         amount,
       };
-      if (initial?.id) await base44.entities.Invoice.update(initial.id, payload);
-      else await base44.entities.Invoice.create(payload);
+      if (initial?.id) await api.entities.Invoice.update(initial.id, payload);
+      else await api.entities.Invoice.create(payload);
       onOpenChange(false);
       onSaved();
     } finally {

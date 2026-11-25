@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ export default function CorrectionDialog({ shift, onClose, onSaved }) {
   const submit = async event => {
     event.preventDefault(); setSaving(true); setError('');
     try {
-      await base44.functions.invoke('workerTimesheet', { action: 'submit', shift_id: shift.id, ...times });
+      await api.functions.invoke('workerTimesheet', { action: 'submit', shift_id: shift.id, ...times });
       await onSaved(); onClose();
     } catch (err) { setError(err.response?.data?.error || 'Unable to submit your correction. Please try again.'); }
     finally { setSaving(false); }

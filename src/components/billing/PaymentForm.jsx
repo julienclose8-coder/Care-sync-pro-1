@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatCurrency, todayStr } from "@/lib/format";
+import { todayStr } from "@/lib/format";
 
 const BLANK = {
   worker_key: "", worker_id: "", worker_name: "",
@@ -78,8 +78,8 @@ export default function PaymentForm({ open, onOpenChange, initial, initialWorker
       const { id, created_date, updated_date, created_by_id, worker_key, ...payload } = form;
       payload.amount = amount;
       if (payload.status === "paid" && !payload.paid_date) payload.paid_date = todayStr();
-      if (initial?.id) await base44.entities.WorkerPayment.update(initial.id, payload);
-      else await base44.entities.WorkerPayment.create(payload);
+      if (initial?.id) await api.entities.WorkerPayment.update(initial.id, payload);
+      else await api.entities.WorkerPayment.create(payload);
       onOpenChange(false);
       onSaved();
     } finally {

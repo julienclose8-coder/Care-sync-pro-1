@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { UsersRound, UserRound, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -10,7 +10,7 @@ export default function ClientTeamSection({ clientId }) {
     let active = true;
     setMembers(null);
     setError(false);
-    base44.functions.invoke("getClientTeam", { client_id: clientId })
+    api.functions.invoke("getClientTeam", { client_id: clientId })
       .then(({ data }) => { if (active) setMembers(data.members); })
       .catch(() => { if (active) setError(true); });
     return () => { active = false; };

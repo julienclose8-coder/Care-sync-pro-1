@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDate, formatTime } from '@/lib/format';
@@ -10,7 +10,7 @@ export default function CorrectionReviewCard({ request, onChanged }) {
   const [error, setError] = useState('');
   const review = async decision => {
     setBusy(true); setError('');
-    try { await base44.functions.invoke('workerTimesheet', { action: 'review', correction_id: request.id, decision, admin_notes: note }); await onChanged(); }
+    try { await api.functions.invoke('workerTimesheet', { action: 'review', correction_id: request.id, decision, admin_notes: note }); await onChanged(); }
     catch (err) { setError(err.response?.data?.error || 'Unable to review this request.'); }
     finally { setBusy(false); }
   };

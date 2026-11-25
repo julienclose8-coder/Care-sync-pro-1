@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Loader2, RefreshCw, ShieldCheck, Clock, Users, HeartHandshake, UserCheck, Sparkles, PieChart } from "lucide-react";
+import { AlertTriangle, Loader2, RefreshCw, ShieldCheck, Clock, Users, UserCheck, Sparkles, PieChart } from "lucide-react";
 import StatCard from "./StatCard";
 import { formatDate, formatTime } from "@/lib/format";
 
@@ -37,7 +37,7 @@ export default function RecommendationsSection() {
     setLoading(true);
     setError("");
     try {
-      const res = await base44.functions.invoke("rosterRecommendations", { days: 14 });
+      const res = await api.functions.invoke("rosterRecommendations", { days: 14 });
       setData(res.data);
     } catch (e) {
       setError(e?.response?.data?.error || e?.message || "Unable to load recommendations.");

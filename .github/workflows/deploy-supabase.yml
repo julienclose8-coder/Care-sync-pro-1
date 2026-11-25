@@ -1,0 +1,45 @@
+name: Deploy Supabase functions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-supabase.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: wcrbdotwhvbukzcscktb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Deploy the api function
+        run: supabase functions deploy api --project-ref "$PROJECT_REF" --use-api
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://wcrbdotwhvbukzcscktb.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_DmIlnLesXNtua_lgHma2OQ_zzf03s0E
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: dist

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { HeartHandshake, LogIn, LogOut, Loader2, FileText, UserRound, BookOpen, ThermometerSun, Siren } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,9 +29,9 @@ export default function WorkerPortal({ user }) {
 
   const load = async () => {
     const [all, clients, myNotes] = await Promise.all([
-      base44.entities.Shift.filter({ worker_id: user.id }, "date"),
-      base44.entities.Client.list().catch(() => []),
-      base44.entities.CareNote.filter({ author_id: user.id }, "-created_date").catch(() => []),
+      api.entities.Shift.filter({ worker_id: user.id }, "date"),
+      api.entities.Client.list().catch(() => []),
+      api.entities.CareNote.filter({ author_id: user.id }, "-created_date").catch(() => []),
     ]);
     setShifts(all);
     setClientMap(Object.fromEntries(clients.map((c) => [c.id, c])));
@@ -42,7 +42,7 @@ export default function WorkerPortal({ user }) {
 
   useEffect(() => {
     load().catch(() => setShifts([]));
-    const unsubscribe = base44.entities.Shift.subscribe(() => load().catch(() => {}));
+    const unsubscribe = api.entities.Shift.subscribe(() => load().catch(() => {}));
     return unsubscribe;
   }, []);
 
@@ -63,7 +63,7 @@ export default function WorkerPortal({ user }) {
 
   const clock = async (shift, direction) => {
     setClockBusy(true); setClockError('');
-    try { await base44.functions.invoke('workerTimesheet', { action: 'clock', shift_id: shift.id, direction }); await load(); }
+    try { await api.functions.invoke('workerTimesheet', { action: 'clock', shift_id: shift.id, direction }); await load(); }
     catch (err) { setClockError(err.response?.data?.error || 'Unable to record your time. Please try again.'); }
     finally { setClockBusy(false); }
   };
@@ -89,7 +89,7 @@ export default function WorkerPortal({ user }) {
               <Button size="sm" className="border-0 bg-white/10 text-white hover:bg-white/20 hover:text-white" onClick={() => setProfileOpen(true)}>
                 <UserRound className="w-4 h-4" /> My profile
               </Button>
-              <Button size="sm" className="border-0 bg-white/10 text-white hover:bg-white/20 hover:text-white" onClick={() => base44.auth.logout()}>
+              <Button size="sm" className="border-0 bg-white/10 text-white hover:bg-white/20 hover:text-white" onClick={() => api.auth.logout()}>
                 <LogOut className="w-4 h-4" /> Sign out
               </Button>
             </div>

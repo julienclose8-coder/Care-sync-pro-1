@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,7 @@ export default function ArchiveClientButton({ client, onSaved }) {
   const archive = async () => {
     setBusy(true); setError('');
     try {
-      await base44.entities.Client.update(client.id, { status: 'inactive', archived_at: new Date().toISOString(), archive_reason: reason.trim() });
+      await api.entities.Client.update(client.id, { status: 'inactive', archived_at: new Date().toISOString(), archive_reason: reason.trim() });
       await onSaved(); setOpen(false);
     } catch (err) { setError(err.message || 'Unable to archive the client.'); }
     finally { setBusy(false); }

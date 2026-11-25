@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -31,9 +31,9 @@ export default function PolicyDocumentForm({ open, onOpenChange, documentType, t
     try {
       const payload = { title: title.trim(), content: content.trim(), document_type: documentType };
       if (existing) {
-        await base44.entities.PolicyDocument.update(existing.id, payload);
+        await api.entities.PolicyDocument.update(existing.id, payload);
       } else {
-        await base44.entities.PolicyDocument.create(payload);
+        await api.entities.PolicyDocument.create(payload);
       }
       onOpenChange(false);
       onSaved?.();

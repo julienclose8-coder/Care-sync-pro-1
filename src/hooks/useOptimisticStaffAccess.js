@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 
 export const staffMutationKey = ['staff-access-change'];
 export default function useOptimisticStaffAccess() {
@@ -7,7 +7,7 @@ export default function useOptimisticStaffAccess() {
   const updateRow = (key, id, update) => cache.setQueryData(key, current => current && ({ ...current, rows: current.rows.map(row => row.id === id ? update(row) : row) }));
   return useMutation({
     mutationKey: staffMutationKey,
-    mutationFn: async ({ subjectType, subjectId, action, level }) => (await base44.functions.invoke('staffAccess', { action, subject_type: subjectType, subject_id: subjectId, level })).data,
+    mutationFn: async ({ subjectType, subjectId, action, level }) => (await api.functions.invoke('staffAccess', { action, subject_type: subjectType, subject_id: subjectId, level })).data,
     onMutate: async ({ subjectType, offset, subjectId, action, level }) => {
       const key = ['staff-access', subjectType, offset];
       await cache.cancelQueries({ queryKey: key, exact: true });

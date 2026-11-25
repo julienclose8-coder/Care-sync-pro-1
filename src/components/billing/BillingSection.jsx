@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Plus, Pencil, Trash2, BadgeCheck, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ export default function BillingSection({ data, onChanged }) {
   const queryClient = useQueryClient();
   const { data: shifts = [] } = useQuery({
     queryKey: ['payroll-shifts'],
-    queryFn: () => base44.entities.Shift.list('date'),
+    queryFn: () => api.entities.Shift.list('date'),
     initialData: data.shifts,
     refetchInterval: 10000,
   });
@@ -30,7 +30,7 @@ export default function BillingSection({ data, onChanged }) {
   const [editing, setEditing] = useState(null);
   const [presetWorker, setPresetWorker] = useState(null);
 
-  useEffect(() => base44.entities.Shift.subscribe(() => {
+  useEffect(() => api.entities.Shift.subscribe(() => {
     queryClient.invalidateQueries({ queryKey: ['payroll-shifts'] });
   }), [queryClient]);
 
@@ -109,13 +109,13 @@ export default function BillingSection({ data, onChanged }) {
   const submitPayRun = async () => {
     const today = todayStr();
     if (pendingPayments.length) {
-      await base44.entities.WorkerPayment.updateMany(
+      await api.entities.WorkerPayment.updateMany(
         { status: "pending" },
         { $set: { status: "paid", paid_date: today } }
       );
     }
     if (payable.length) {
-      await base44.entities.WorkerPayment.bulkCreate(
+      await api.entities.WorkerPayment.bulkCreate(
         payable.map(({ entry, st }) => ({
           worker_id: entry.id || "",
           worker_name: entry.name,
@@ -134,13 +134,13 @@ export default function BillingSection({ data, onChanged }) {
   };
 
   const markPaid = async (p) => {
-    await base44.entities.WorkerPayment.update(p.id, { status: "paid", paid_date: todayStr() });
+    await api.entities.WorkerPayment.update(p.id, { status: "paid", paid_date: todayStr() });
     onChanged();
   };
 
   const handleDelete = async (p) => {
     if (!window.confirm(`Delete payment to ${p.worker_name || "worker"}?`)) return;
-    await base44.entities.WorkerPayment.delete(p.id);
+    await api.entities.WorkerPayment.delete(p.id);
     onChanged();
   };
 

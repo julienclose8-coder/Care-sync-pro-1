@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +62,7 @@ export default function ShiftForm({ open, onOpenChange, initial, clients, worker
       const seriesId = dates.length > 1 ? crypto.randomUUID() : "";
       const payload = { ...storedForm, recurrence_series_id: initial?.recurrence_series_id || seriesId, recurrence_week_count: dates.length, worker_name: worker ? worker.full_name || worker.email : "" };
       if (!payload.recurrence_end_date) delete payload.recurrence_end_date;
-      await base44.functions.invoke('saveRosterShifts', { shift_id: initial?.id, expected_updated_at: initial?.updated_date, shift: payload, dates });
+      await api.functions.invoke('saveRosterShifts', { shift_id: initial?.id, expected_updated_at: initial?.updated_date, shift: payload, dates });
       onOpenChange(false);
       onSaved();
     } catch (err) {

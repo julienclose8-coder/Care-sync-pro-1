@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import {
   LayoutDashboard, Users, CalendarDays, Wallet, HeartHandshake, LogOut, Loader2, UserCog, ClipboardList, FileText,
   ShieldCheck, ListChecks, Sparkles,
@@ -48,15 +48,15 @@ export default function AdminShell({ user }) {
 
   const loadData = async () => {
     const [clients, shifts, invoices, users, workerProfiles, requests, payments, team, goals] = await Promise.all([
-      base44.entities.Client.list(),
-      base44.entities.Shift.list("date"),
-      base44.entities.Invoice.list("-issue_date"),
-      base44.entities.User.list().catch(() => []),
-      base44.entities.Worker.list().catch(() => []),
-      base44.entities.SupportRequest.list("-created_date"),
-      base44.entities.WorkerPayment.list("-created_date"),
-      base44.entities.SupportTeamMember.list().catch(() => []),
-      base44.entities.Goal.list().catch(() => []),
+      api.entities.Client.list(),
+      api.entities.Shift.list("date"),
+      api.entities.Invoice.list("-issue_date"),
+      api.entities.User.list().catch(() => []),
+      api.entities.Worker.list().catch(() => []),
+      api.entities.SupportRequest.list("-created_date"),
+      api.entities.WorkerPayment.list("-created_date"),
+      api.entities.SupportTeamMember.list().catch(() => []),
+      api.entities.Goal.list().catch(() => []),
     ]);
     const workers = [
       ...users.map((worker) => ({ ...worker, worker_source: "user" })),
@@ -105,7 +105,7 @@ export default function AdminShell({ user }) {
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
           <button
-            onClick={() => base44.auth.logout()}
+            onClick={() => api.auth.logout()}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
           >
             <LogOut className="w-4 h-4" /> Sign out
@@ -122,7 +122,7 @@ export default function AdminShell({ user }) {
             </div>
             <p className="font-heading font-extrabold">Support Hub</p>
             <DeleteAccountButton className="ml-auto px-2 text-xs text-destructive" />
-            <button onClick={() => base44.auth.logout()} className="ml-auto text-muted-foreground">
+            <button onClick={() => api.auth.logout()} className="ml-auto text-muted-foreground">
               <LogOut className="w-4 h-4" />
             </button>
           </div>

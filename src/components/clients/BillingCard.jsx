@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ReceiptText, Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ export default function BillingCard({ client, onChanged }) {
   useEffect(() => setDefaultRate(String(client.hourly_charge_rate || "")), [client.hourly_charge_rate]);
   const save = async (patch) => {
     setSaving(true);
-    await base44.entities.Client.update(client.id, patch);
+    await api.entities.Client.update(client.id, patch);
     await onChanged();
     setSaving(false);
   };

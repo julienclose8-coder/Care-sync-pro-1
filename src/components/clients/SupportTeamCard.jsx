@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useOptimisticSupportTeam from '@/hooks/useOptimisticSupportTeam';
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ export default function SupportTeamCard({ client, shifts, workers, onChanged }) 
   const { team, error, saving, loadTeam, addMember, approve } = useOptimisticSupportTeam(client.id, onChanged, () => setAdding(false));
 
   const remove = (m) =>
-    base44.entities.SupportTeamMember
+    api.entities.SupportTeamMember
       .delete(m.id)
       .then(() => {
         loadTeam();

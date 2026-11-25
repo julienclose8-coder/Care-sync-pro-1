@@ -1,12 +1,12 @@
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Switch } from '@/components/ui/switch';
 
 export default function WorkerPayVisibility({ person, subjectType }) {
   const cache = useQueryClient();
   const mutation = useMutation({
-    mutationFn: async visible => (await base44.functions.invoke('staffAccess', { action: 'pay_visibility', subject_type: subjectType, subject_id: person.id, visible })).data,
+    mutationFn: async visible => (await api.functions.invoke('staffAccess', { action: 'pay_visibility', subject_type: subjectType, subject_id: person.id, visible })).data,
     onSuccess: () => cache.invalidateQueries({ queryKey: ['staff-access'] }),
   });
   return <div className="space-y-2 border-t pt-3">

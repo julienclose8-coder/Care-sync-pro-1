@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,7 @@ export default function CareNoteDialog({ open, onOpenChange, shift, client, clie
   const save = async (event, finalize) => {
     event.preventDefault(); setSaving(true); setError('');
     try {
-      const { data } = await base44.functions.invoke('careNotes', { action: 'save', id: existing?.id, client_id: clientId, shift_id: shift?.id || '', note_category: category, behavioural_subtype: category === 'behavioural' ? subtype : '', content, status: isDraft && !finalize ? 'draft' : 'final' });
+      const { data } = await api.functions.invoke('careNotes', { action: 'save', id: existing?.id, client_id: clientId, shift_id: shift?.id || '', note_category: category, behavioural_subtype: category === 'behavioural' ? subtype : '', content, status: isDraft && !finalize ? 'draft' : 'final' });
       await onSaved?.(data.note); onOpenChange(false);
     } catch (err) { setError(err.response?.data?.error || 'Unable to save this note. Please try again.'); }
     finally { setSaving(false); }

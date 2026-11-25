@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CalendarClock } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,7 +21,7 @@ export default function VisitDateChangeButton({ client, shift, requests, onSent 
     event.preventDefault();
     setSending(true);
     try {
-      await base44.entities.SupportRequest.create({ client_id: client.id, shift_id: shift.id, request_type: "change", service_type: shift.service_type || "Other", preferred_times: `${newDate} ${formatTime(newStart)}–${formatTime(newEnd)}`, outcome, details: `Please move the visit on ${formatDate(shift.date)}, ${formatTime(shift.start_time)}–${formatTime(shift.end_time)} to ${formatDate(newDate)}, ${formatTime(newStart)}–${formatTime(newEnd)}.`, status: "pending" });
+      await api.entities.SupportRequest.create({ client_id: client.id, shift_id: shift.id, request_type: "change", service_type: shift.service_type || "Other", preferred_times: `${newDate} ${formatTime(newStart)}–${formatTime(newEnd)}`, outcome, details: `Please move the visit on ${formatDate(shift.date)}, ${formatTime(shift.start_time)}–${formatTime(shift.end_time)} to ${formatDate(newDate)}, ${formatTime(newStart)}–${formatTime(newEnd)}.`, status: "pending" });
       await onSent();
       setOpen(false);
       setNewDate("");

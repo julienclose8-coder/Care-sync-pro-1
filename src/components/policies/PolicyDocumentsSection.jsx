@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { Plus, Pencil, Trash2, ChevronDown, Loader2 } from "lucide-react";
+import { api } from '@/api/client';
+import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import PolicyDocumentForm from "./PolicyDocumentForm";
@@ -17,7 +17,7 @@ export default function PolicyDocumentsSection({ documentType, typeLabel }) {
   const [editing, setEditing] = useState(null);
 
   const load = async () => {
-    const list = await base44.entities.PolicyDocument.filter({ document_type: documentType }, "-created_date");
+    const list = await api.entities.PolicyDocument.filter({ document_type: documentType }, "-created_date");
     setDocs(list);
   };
 
@@ -26,7 +26,7 @@ export default function PolicyDocumentsSection({ documentType, typeLabel }) {
   }, [documentType]);
 
   const remove = async (doc) => {
-    await base44.entities.PolicyDocument.delete(doc.id);
+    await api.entities.PolicyDocument.delete(doc.id);
     setConfirmId(null);
     load();
   };

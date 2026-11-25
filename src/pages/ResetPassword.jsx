@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { api, supabase } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,8 +8,20 @@ import { Lock, Loader2, AlertTriangle } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get("token");
+  // The emailed reset link signs the person in for recovery before this page loads.
+  // null = still checking, false = no recovery session (link missing or expired).
+  const [resetToken, setResetToken] = useState(null);
+  useEffect(() => {
+    let active = true;
+    const check = () => supabase.auth.getSession().then(({ data }) => { if (active) setResetToken(!!data.session); });
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") check();
+    });
+    const params = new URLSearchParams(window.location.search);
+    // Give the sign-in link a moment to be exchanged for a session.
+    if (params.has("code")) setTimeout(check, 1500); else check();
+    return () => { active = false; data.subscription.unsubscribe(); };
+  }, []);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,14 +37,22 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      await base44.auth.resetPassword({ resetToken, newPassword });
-      window.location.href = "/login";
+      await api.auth.resetPassword({ newPassword });
+      await api.auth.logout("/login");
     } catch (err) {
       setError(err.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
   };
+
+  if (resetToken === null) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!resetToken) {
     return (

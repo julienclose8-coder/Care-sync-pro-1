@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,7 @@ export default function DeleteAccountButton({ className }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const remove = async () => {
     setBusy(true); setError('');
-    try { await base44.functions.invoke('deleteOwnAccount', { confirmation }); await base44.auth.logout('/'); }
+    try { await api.functions.invoke('deleteOwnAccount', { confirmation }); await api.auth.logout('/'); }
     catch (err) { setError(err.response?.data?.error || 'Unable to delete your account. Please try again.'); setBusy(false); }
   };
   return <>

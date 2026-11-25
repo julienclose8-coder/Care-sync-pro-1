@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import CorrectionReviewCard from '@/components/timesheets/CorrectionReviewCard';
 import { Button } from '@/components/ui/button';
 
@@ -8,7 +8,7 @@ export default function TimeCorrectionsSection({ onChanged }) {
   const [error, setError] = useState('');
   const load = async () => {
     setError('');
-    try { const { data } = await base44.functions.invoke('workerTimesheet', { action: 'reviews' }); setRequests(data.corrections); }
+    try { const { data } = await api.functions.invoke('workerTimesheet', { action: 'reviews' }); setRequests(data.corrections); }
     catch (err) { setError(err.response?.data?.error || 'Unable to load correction requests.'); }
   };
   useEffect(() => { load(); }, []);
