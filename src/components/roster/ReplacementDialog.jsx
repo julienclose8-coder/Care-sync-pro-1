@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Loader2, RefreshCw, UserCheck, CalendarClock, AlertTriangle } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
-import { formatDate, formatTime, shiftHours } from "@/lib/format";
+import { formatDate, formatTime } from "@/lib/format";
 
 const STATUS_META = {
   available: { label: "Free to cover", tone: "bg-emerald-100 text-emerald-700", assignable: true },
@@ -26,7 +26,7 @@ export default function ReplacementDialog({ open, onOpenChange, shift, clientNam
     setLoading(true);
     setError("");
     try {
-      const res = await base44.functions.invoke("findReplacement", { shift_id: shift.id });
+      const res = await api.functions.invoke("findReplacement", { shift_id: shift.id });
       setData(res.data);
     } catch (err) {
       setError(err.response?.data?.error || "Unable to look for cover.");
@@ -52,7 +52,7 @@ export default function ReplacementDialog({ open, onOpenChange, shift, clientNam
     setAssigning(candidate.worker_id);
     setError("");
     try {
-      await base44.functions.invoke("saveRosterShifts", {
+      await api.functions.invoke("saveRosterShifts", {
         shift_id: shift.id,
         expected_updated_at: shift.updated_date,
         shift: { worker_id: candidate.worker_id, worker_name: candidate.worker_name },

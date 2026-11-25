@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ export default function GoalRequestDialog({ open, onOpenChange, client, onSaved 
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.SupportRequest.create({
+      await api.entities.SupportRequest.create({
         client_id: client.id,
         request_type: "goal",
         service_type: "Other",

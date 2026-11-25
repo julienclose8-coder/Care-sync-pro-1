@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useIsMutating, useQuery } from '@tanstack/react-query';
 import useOptimisticStaffAccess, { staffMutationKey } from '@/hooks/useOptimisticStaffAccess';
 import useAdminViewState from '@/hooks/useAdminViewState';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Loader2, ShieldCheck } from 'lucide-react';
 import StaffLevelCatalog from '@/components/access/StaffLevelCatalog';
@@ -19,7 +19,7 @@ export default function StaffAccessSection() {
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['staff-access', subjectType, offset],
     enabled: saving === 0,
-    queryFn: async () => (await base44.functions.invoke('staffAccess', { action: 'list', subject_type: subjectType, offset })).data,
+    queryFn: async () => (await api.functions.invoke('staffAccess', { action: 'list', subject_type: subjectType, offset })).data,
   });
   const change = async (subjectId, action, level) => {
     setMessage('');

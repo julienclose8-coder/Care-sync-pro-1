@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -83,7 +83,7 @@ function WorkerTrainings({ worker, onChanged }) {
     setSaving(true);
     try {
       const entity = worker.worker_source === "profile" ? "Worker" : "User";
-      await base44.entities[entity].update(worker.id, { trainings: next });
+      await api.entities[entity].update(worker.id, { trainings: next });
       if (onChanged) onChanged();
     } finally {
       setSaving(false);

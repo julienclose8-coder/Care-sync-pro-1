@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { History, Loader2, LockKeyhole } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatTime } from "@/lib/format";
@@ -43,7 +43,7 @@ export default function ShiftHistoryDialog({ open, onOpenChange, shift, clientNa
     let cancelled = false;
     setLoading(true);
     setItems([]);
-    base44.entities.ShiftHistory.filter({ shift_id: shift.id }, { sort: "-created_date", limit: 100 })
+    api.entities.ShiftHistory.filter({ shift_id: shift.id }, { sort: "-created_date", limit: 100 })
       .then((page) => { if (!cancelled) setItems(page.items || []); })
       .catch(() => { if (!cancelled) setItems([]); })
       .finally(() => { if (!cancelled) setLoading(false); });

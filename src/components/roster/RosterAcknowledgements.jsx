@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 
 export default function RosterAcknowledgements({ workerId, onChanged }) {
   const [page, setPage] = useState(null), [error, setError] = useState(''), [busy, setBusy] = useState('');
   const load = async (cursor) => {
-    const { data } = await base44.functions.invoke('rosterAcknowledgements', { action: 'list', worker_id: workerId, cursor });
+    const { data } = await api.functions.invoke('rosterAcknowledgements', { action: 'list', worker_id: workerId, cursor });
     setPage(previous => cursor ? { ...data, items: [...previous.items, ...data.items] } : data);
   };
   useEffect(() => {
     load().catch(() => setError('Unable to load roster change requests.'));
-    return base44.entities.RosterAcknowledgement.subscribe(() => load().catch(() => setError('Unable to refresh requests.')));
+    return api.entities.RosterAcknowledgement.subscribe(() => load().catch(() => setError('Unable to refresh requests.')));
   }, [workerId]);
   const acknowledge = async (request) => {
     setBusy(request.id); setError('');
     try {
-      await base44.functions.invoke('rosterAcknowledgements', { action: 'acknowledge', request_id: request.id });
+      await api.functions.invoke('rosterAcknowledgements', { action: 'acknowledge', request_id: request.id });
       await Promise.all([load(), onChanged?.()]);
     } catch (err) { setError(err.response?.data?.error || 'Unable to acknowledge this change.'); }
     finally { setBusy(''); }

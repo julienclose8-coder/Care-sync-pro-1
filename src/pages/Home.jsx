@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Loader2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkerPortal from "@/components/portals/WorkerPortal";
@@ -14,9 +14,9 @@ export default function Home() {
 
   useEffect(() => {
     const resolve = async () => {
-      const me = await base44.auth.me();
+      const me = await api.auth.me();
       if (me.role === "admin") return setView({ type: "admin", user: me });
-      const clients = await base44.entities.Client.filter({ email: me.email });
+      const clients = await api.entities.Client.filter({ email: me.email });
       if (clients.length > 0) return setView({ type: "client", user: me, client: clients[0] });
       setView({ type: "worker", user: me });
     };
@@ -27,13 +27,13 @@ export default function Home() {
   const handlePreview = async (mode) => {
     if (mode === "admin") return setPreview(null);
     if (mode === "worker") {
-      const users = await base44.entities.User.list().catch(() => []);
+      const users = await api.entities.User.list().catch(() => []);
       const worker = users.find((u) => u.role !== "admin") || view.user;
       setDemoData((d) => ({ ...(d || {}), worker }));
       setPreview("worker");
     }
     if (mode === "client") {
-      const clients = await base44.entities.Client.list().catch(() => []);
+      const clients = await api.entities.Client.list().catch(() => []);
       const client = clients[0];
       if (!client) return;
       setDemoData((d) => ({

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { ArrowLeft, ChevronDown, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,7 +53,7 @@ function DocumentList({ docs, emptyLabel }) {
 export default function PolicyDocuments() {
   const [docs, setDocs] = useState(null);
 
-  const load = () => base44.entities.PolicyDocument.list("-created_date").then(setDocs);
+  const load = () => api.entities.PolicyDocument.list("-created_date").then(setDocs);
   usePageRefresh(load);
   useEffect(() => { load().catch(() => setDocs([])); }, []);
 

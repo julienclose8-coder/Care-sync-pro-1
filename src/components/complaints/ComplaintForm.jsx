@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import ComplaintFields from '@/components/complaints/ComplaintFields';
@@ -11,7 +11,7 @@ export default function ComplaintForm({ manager, initialType, onClose, onSaved }
   const save = async e => {
     e.preventDefault(); setBusy(true); setError('');
     try {
-      const { data } = await base44.functions.invoke('complaints', { action:'create', ...form });
+      const { data } = await api.functions.invoke('complaints', { action:'create', ...form });
       onSaved(data.record); onClose();
     } catch (err) { setError(err.response?.data?.error || 'Unable to submit your complaint. Please try again.'); }
     finally { setBusy(false); }

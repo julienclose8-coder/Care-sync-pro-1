@@ -1,5 +1,5 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,9 @@ export default function RequestsSection({ data, onChanged }) {
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
   const setStatus = async (r, status) => {
-    await base44.entities.SupportRequest.update(r.id, { status });
+    await api.entities.SupportRequest.update(r.id, { status });
     if (status === "approved" && r.request_type === "goal" && r.goal) {
-      await base44.entities.Goal.create({
+      await api.entities.Goal.create({
         client_id: r.client_id,
         title: r.goal,
         description: r.outcome || "",

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useQueryClient } from '@tanstack/react-query';
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Plus, Check, X, Pencil, Trash2, CalendarDays, List, Sparkles, Loader2, CircleAlert } from "lucide-react";
 import RosterCalendar from "./RosterCalendar";
 import SupportLocationSummary from "@/components/supports/SupportLocationSummary";
@@ -38,7 +38,7 @@ export default function RosterSection({ data, onChanged }) {
 
   const handleDelete = async (shift) => {
     if (!window.confirm("Delete this shift?")) return;
-    await base44.functions.invoke('saveRosterShifts', { action: 'delete', shift_id: shift.id });
+    await api.functions.invoke('saveRosterShifts', { action: 'delete', shift_id: shift.id });
     await Promise.all([onChanged(), cache.invalidateQueries({ queryKey: ['roster-calendar'] })]);
   };
 
@@ -48,7 +48,7 @@ export default function RosterSection({ data, onChanged }) {
   const fetchInsights = async () => {
     setInsightLoading(true);
     try {
-      const res = await base44.functions.invoke("rosterInsights", {});
+      const res = await api.functions.invoke("rosterInsights", {});
       setInsights(res.data.insights || []);
     } finally {
       setInsightLoading(false);

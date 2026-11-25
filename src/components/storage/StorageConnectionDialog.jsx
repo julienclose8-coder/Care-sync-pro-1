@@ -7,15 +7,11 @@ export default function StorageConnectionDialog({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Link OneDrive when you’re ready</DialogTitle>
+          <DialogTitle>Where files are stored</DialogTitle>
           <DialogDescription>Use one business account as the app’s central storage, not individual users’ drives.</DialogDescription>
         </DialogHeader>
-        <ol className="list-decimal pl-5 space-y-3 text-sm">
-          <li>Return to the Base44 builder chat and ask: <span className="font-semibold">“Connect my shared OneDrive for Business account for storage.”</span></li>
-          <li>Approve the Microsoft connection using the business account you want the app to use.</li>
-          <li>After connection, complete encrypted storage and staff-access setup before moving notes out of temporary app storage.</li>
-        </ol>
-        <p className="text-sm text-muted-foreground">Shared-account approval cannot be started from this app page. Opening these steps does not connect Microsoft, move notes, or grant anyone drive access.</p>
+        <p className="text-sm">Documents and notes are stored in the app’s own private, encrypted storage in Sydney, Australia. Only signed-in staff with the right access can open them, using short-lived links.</p>
+        <p className="text-sm text-muted-foreground">A shared OneDrive for Business link is not set up yet. Ask your administrator if you need one.</p>
         <Button onClick={() => onOpenChange(false)}>Done</Button>
       </DialogContent>
     </Dialog>

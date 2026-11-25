@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import ComplaintFilters from '@/components/complaints/ComplaintFilters';
@@ -18,7 +18,7 @@ export default function Complaints() {
   const [creating,setCreating] = useState(false);
   const [selected,setSelected] = useState(null);
   const [message,setMessage] = useState('');
-  const {data,isPending,error,refetch} = useQuery({queryKey:['complaints',scope,filters,offset],queryFn:async () => (await base44.functions.invoke('complaints',{action:'list',scope,offset,...filters})).data});
+  const {data,isPending,error,refetch} = useQuery({queryKey:['complaints',scope,filters,offset],queryFn:async () => (await api.functions.invoke('complaints',{action:'list',scope,offset,...filters})).data});
   const manager = !!data?.can_manage && scope !== 'mine';
   const changeFilter = (key,value) => {setFilters(f => ({...f,[key]:value}));setOffset(0);};
   const saved = record => {setSelected(record);setMessage('Review saved.');refetch();};

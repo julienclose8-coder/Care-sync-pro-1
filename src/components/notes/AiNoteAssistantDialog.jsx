@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, Sparkles, Send, RotateCcw, FileText, Lock } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,7 @@ export default function AiNoteAssistantDialog({ open, onOpenChange, client, clie
   const compile = async (history) => {
     setLoading(true); setError('');
     try {
-      const res = await base44.functions.invoke('careNoteAssistant', {
+      const res = await api.functions.invoke('careNoteAssistant', {
         action: 'compile', category, behavioural_subtype: category === 'behavioural' ? subtype : '',
         client_id: client?.id, shift_id: shift?.id || '', messages: history,
       });
@@ -49,7 +49,7 @@ export default function AiNoteAssistantDialog({ open, onOpenChange, client, clie
   const ask = async (nextMessages) => {
     setLoading(true); setError('');
     try {
-      const res = await base44.functions.invoke('careNoteAssistant', {
+      const res = await api.functions.invoke('careNoteAssistant', {
         action: 'ask', category, behavioural_subtype: category === 'behavioural' ? subtype : '',
         client_id: client?.id, shift_id: shift?.id || '', messages: nextMessages,
       });
@@ -78,7 +78,7 @@ export default function AiNoteAssistantDialog({ open, onOpenChange, client, clie
     if (!draft.trim()) return;
     setSaving(true); setError('');
     try {
-      await base44.functions.invoke('careNotes', {
+      await api.functions.invoke('careNotes', {
         action: 'save', client_id: client?.id, shift_id: shift?.id || '',
         note_category: category, behavioural_subtype: category === 'behavioural' ? subtype : '',
         content: draft.trim(), status: 'draft',

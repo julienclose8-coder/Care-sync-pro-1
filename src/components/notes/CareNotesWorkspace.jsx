@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -15,12 +15,12 @@ export default function CareNotesWorkspace({ clientId, clientName }) {
   const cache = useQueryClient();
   const [category, setCategory] = useState('all'), [form, setForm] = useState(null), [assistant, setAssistant] = useState(null), [remove, setRemove] = useState(null);
   const [deleting, setDeleting] = useState(false), [deleteError, setDeleteError] = useState('');
-  const query = useQuery({ queryKey: ['care-notes', clientId], enabled: !!clientId, queryFn: async () => (await base44.functions.invoke('careNotes', { action: 'list', client_id: clientId })).data });
+  const query = useQuery({ queryKey: ['care-notes', clientId], enabled: !!clientId, queryFn: async () => (await api.functions.invoke('careNotes', { action: 'list', client_id: clientId })).data });
   const refresh = () => cache.invalidateQueries({ queryKey: ['care-notes'] });
-  useEffect(() => base44.entities.CareNote.subscribe(() => { cache.invalidateQueries({ queryKey: ['care-notes'] }); }), [cache]);
+  useEffect(() => api.entities.CareNote.subscribe(() => { cache.invalidateQueries({ queryKey: ['care-notes'] }); }), [cache]);
   const deleteNote = async () => {
     setDeleting(true); setDeleteError('');
-    try { await base44.functions.invoke('careNotes', { action: 'delete', id: remove.id }); await refresh(); setRemove(null); }
+    try { await api.functions.invoke('careNotes', { action: 'delete', id: remove.id }); await refresh(); setRemove(null); }
     catch (err) { setDeleteError(err.response?.data?.error || 'Unable to delete this note.'); }
     finally { setDeleting(false); }
   };

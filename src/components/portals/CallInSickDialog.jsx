@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Loader2, ThermometerSun } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -25,7 +25,7 @@ export default function CallInSickDialog({ open, onOpenChange, shift, client, on
     setBusy(true);
     setError("");
     try {
-      await base44.functions.invoke("callInSick", { shift_id: shift.id, reason: reason.trim() });
+      await api.functions.invoke("callInSick", { shift_id: shift.id, reason: reason.trim() });
       toast({ title: "Sick leave recorded", description: "The team has been notified and the shift is flagged for a replacement." });
       setReason("");
       onOpenChange(false);

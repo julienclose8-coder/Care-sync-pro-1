@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import WeeklyTimesheet from '@/components/timesheets/WeeklyTimesheet';
@@ -12,7 +12,7 @@ export default function WorkerTimesheet() {
   const workerId = new URLSearchParams(window.location.search).get('worker_id');
   const load = async () => {
     setError('');
-    try { const response = await base44.functions.invoke('workerTimesheet', { action: 'list', worker_id: workerId }); setData(response.data); }
+    try { const response = await api.functions.invoke('workerTimesheet', { action: 'list', worker_id: workerId }); setData(response.data); }
     catch (err) { setError(err.response?.data?.error || 'Unable to load your timesheet.'); }
   };
   usePageRefresh(load);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { usePageRefresh } from '@/hooks/usePullToRefresh';
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { HeartHandshake, LogOut, Loader2, Sparkles, HeartPulse, ShieldAlert, CalendarDays, Plus, PencilLine, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,15 +46,15 @@ export default function ClientPortal({ user, client }) {
   const [goalOpen, setGoalOpen] = useState(false);
 
   const loadShifts = () =>
-  base44.entities.Shift.filter({ client_id: client.id }, "date").then(setShifts).catch(() => setShifts([]));
+  api.entities.Shift.filter({ client_id: client.id }, "date").then(setShifts).catch(() => setShifts([]));
 
   const loadRequests = () =>
-  base44.entities.SupportRequest.
+  api.entities.SupportRequest.
   filter({ client_id: client.id }, "-created_date").
   then(setRequests).
   catch(() => setRequests([]));
 
-  const loadInvoices = () => base44.entities.Invoice.filter({ client_id: client.id }, "-issue_date").then(setInvoices).catch(() => setInvoices([]));
+  const loadInvoices = () => api.entities.Invoice.filter({ client_id: client.id }, "-issue_date").then(setInvoices).catch(() => setInvoices([]));
   usePageRefresh(() => Promise.all([loadShifts(), loadRequests(), loadInvoices()]));
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function ClientPortal({ user, client }) {
               <h1 className="font-heading text-2xl md:text-3xl font-extrabold leading-tight">Welcome back, {firstName}</h1>
             </div>
           </div>
-          <Button size="sm" className="border-0 bg-white/15 text-white hover:bg-white/25 hover:text-white" onClick={() => base44.auth.logout()}>
+          <Button size="sm" className="border-0 bg-white/15 text-white hover:bg-white/25 hover:text-white" onClick={() => api.auth.logout()}>
             <LogOut className="w-4 h-4" /> Sign out
           </Button>
         </div>

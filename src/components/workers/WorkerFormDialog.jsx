@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +24,8 @@ export default function WorkerFormDialog({ open, onOpenChange, worker, onSaved }
       hour_limit_action: form.hour_limit_action, trainings: form.trainings, documents: form.documents,
     };
     if (worker?.worker_source === "user") { delete payload.full_name; delete payload.email; }
-    if (worker?.id) await base44.entities[worker.worker_source === "profile" ? "Worker" : "User"].update(worker.id, payload);
-    else await base44.entities.Worker.create(payload);
+    if (worker?.id) await api.entities[worker.worker_source === "profile" ? "Worker" : "User"].update(worker.id, payload);
+    else await api.entities.Worker.create(payload);
     setSaving(false); onOpenChange(false); onSaved();
   };
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{worker ? "Edit worker" : "Add worker profile"}</DialogTitle></DialogHeader><form onSubmit={submit} className="space-y-5">

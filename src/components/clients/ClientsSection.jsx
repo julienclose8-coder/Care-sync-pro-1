@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ export default function ClientsSection({ data, onChanged }) {
 
   const handleDelete = async (client) => {
     if (!window.confirm(`Delete ${client.full_name}? This can't be undone.`)) return;
-    await base44.entities.Client.delete(client.id);
+    await api.entities.Client.delete(client.id);
     onChanged();
   };
 

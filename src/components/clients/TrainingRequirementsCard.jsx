@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +20,7 @@ export default function TrainingRequirementsCard({ client, onChanged }) {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.entities.Client.update(client.id, { training_requirements: selected });
+      await api.entities.Client.update(client.id, { training_requirements: selected });
       if (onChanged) onChanged();
     } finally {
       setSaving(false);

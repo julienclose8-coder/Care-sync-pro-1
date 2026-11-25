@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { toast } from '@/components/ui/use-toast';
 import useAdminViewState from '@/hooks/useAdminViewState';
 
@@ -14,7 +14,7 @@ export default function useOptimisticRosterStatus(records, onChanged) {
     locks.current.add(shift.id);
     setOverrides(current => ({ ...current, [shift.id]: { status, pending: true } }));
     try {
-      await base44.functions.invoke('saveRosterShifts', { shift_id: shift.id, changes: { status } });
+      await api.functions.invoke('saveRosterShifts', { shift_id: shift.id, changes: { status } });
     } catch (error) {
       clear(shift.id); locks.current.delete(shift.id);
       toast({ variant: 'destructive', title: 'Shift not updated', description: error.response?.data?.error || 'The previous status was restored. Please try again.' });

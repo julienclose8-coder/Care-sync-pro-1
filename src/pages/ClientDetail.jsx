@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,9 +70,9 @@ export default function ClientDetail() {
 
   const loadCore = useCallback(async () => {
     const [c, s, w] = await Promise.all([
-      base44.entities.Client.get(id),
-      base44.entities.Shift.filter({ client_id: id }),
-      base44.entities.User.list(),
+      api.entities.Client.get(id),
+      api.entities.Shift.filter({ client_id: id }),
+      api.entities.User.list(),
     ]);
     setClient(c);
     setShifts(s);

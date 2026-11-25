@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import MobileSelect from '@/components/mobile/MobileSelect';
 import LeaveRequestCard from '@/components/leave/LeaveRequestCard';
@@ -9,13 +9,13 @@ export default function LeaveRequestsList({ workerId, manager = false }) {
   const cache = useQueryClient(), [status, setStatus] = useState(manager ? 'pending' : ''), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const query = useInfiniteQuery({
     queryKey: ['worker-leave', manager, workerId, status], initialPageParam: null,
-    queryFn: async ({ pageParam }) => (await base44.functions.invoke('workerLeave', { action: manager ? 'reviews' : 'list', worker_id: workerId, status, ...(pageParam ? { cursor: pageParam } : {}) })).data,
+    queryFn: async ({ pageParam }) => (await api.functions.invoke('workerLeave', { action: manager ? 'reviews' : 'list', worker_id: workerId, status, ...(pageParam ? { cursor: pageParam } : {}) })).data,
     getNextPageParam: page => page.has_more ? page.next_cursor : undefined,
   });
-  useEffect(() => base44.entities.WorkerLeaveRequest.subscribe(() => cache.invalidateQueries({ queryKey: ['worker-leave'] })), [cache]);
+  useEffect(() => api.entities.WorkerLeaveRequest.subscribe(() => cache.invalidateQueries({ queryKey: ['worker-leave'] })), [cache]);
   const review = async (request_id, decision) => {
     setBusy(true); setError('');
-    try { await base44.functions.invoke('workerLeave', { action: 'review', request_id, decision }); await cache.invalidateQueries({ queryKey: ['worker-leave'] }); }
+    try { await api.functions.invoke('workerLeave', { action: 'review', request_id, decision }); await cache.invalidateQueries({ queryKey: ['worker-leave'] }); }
     catch (err) { setError(err.response?.data?.error || 'Unable to review this request.'); }
     finally { setBusy(false); }
   };

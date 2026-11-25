@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import SupportRequestTiming from "@/components/supports/SupportRequestTiming";
@@ -53,7 +53,7 @@ export default function SupportRequestDialog({ open, onOpenChange, client, initi
         prefDate ? format(prefDate, "EEEE d MMM yyyy") : "",
         hasTiming ? `${formatTime(timing.start)} – ${formatTime(timing.end)}${timing.end <= timing.start ? " (next day)" : ""} · ${Number(timing.hours)} support hours` : "",
       ].filter(Boolean).join(" at ");
-      await base44.entities.SupportRequest.create({
+      await api.entities.SupportRequest.create({
         ...form,
         centre_name: form.support_setting === "centre_based" ? client.centre_name || "" : "",
         centre_address: form.support_setting === "centre_based" ? client.centre_address || "" : "",

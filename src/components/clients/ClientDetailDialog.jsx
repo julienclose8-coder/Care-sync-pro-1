@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import CareNotesWorkspace from '@/components/notes/CareNotesWorkspace';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Phone, Mail, MapPin, CalendarDays, HeartPulse, Sparkles, ShieldAlert, FileText } from "lucide-react";
-import { formatDate } from "@/lib/format";
+import { Pencil, Phone, Mail, MapPin, CalendarDays, HeartPulse, Sparkles, ShieldAlert } from "lucide-react";
 
 function InfoRow({ icon: Icon, label, value }) {
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Loader2, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,8 @@ export default function MyClientsSection({ user }) {
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      base44.entities.SupportTeamMember.filter({ worker_id: user.id, status: "approved" }).catch(() => []),
-      base44.entities.Client.list().catch(() => []),
+      api.entities.SupportTeamMember.filter({ worker_id: user.id, status: "approved" }).catch(() => []),
+      api.entities.Client.list().catch(() => []),
     ]).then(([team, all]) => {
       if (cancelled) return;
       const ids = new Set(team.map((t) => t.client_id));

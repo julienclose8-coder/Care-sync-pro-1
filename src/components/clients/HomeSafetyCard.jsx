@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -32,7 +32,7 @@ export default function HomeSafetyCard({ clientId }) {
 
   useEffect(() => {
     setLoading(true);
-    base44.entities.HomeAssessment.filter({ client_id: clientId })
+    api.entities.HomeAssessment.filter({ client_id: clientId })
       .then((rows) => {
         const r = rows[0] || null;
         setRecord(r);
@@ -50,9 +50,9 @@ export default function HomeSafetyCard({ clientId }) {
       const { id, created_date, updated_date, created_by_id, ...rest } = form;
       const payload = { ...rest, client_id: clientId, last_reviewed: todayStr() };
       if (record) {
-        await base44.entities.HomeAssessment.update(record.id, payload);
+        await api.entities.HomeAssessment.update(record.id, payload);
       } else {
-        const created = await base44.entities.HomeAssessment.create(payload);
+        const created = await api.entities.HomeAssessment.create(payload);
         setRecord(created);
       }
       setJustSaved(true);

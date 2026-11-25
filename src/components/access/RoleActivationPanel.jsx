@@ -1,12 +1,12 @@
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Switch } from '@/components/ui/switch';
 
 export default function RoleActivationPanel({ levels, routing, canActivate }) {
   const cache = useQueryClient();
   const mutation = useMutation({
-    mutationFn: async ({ level, active }) => (await base44.functions.invoke('staffAccess', { action: 'activation', level, active })).data,
+    mutationFn: async ({ level, active }) => (await api.functions.invoke('staffAccess', { action: 'activation', level, active })).data,
     onSuccess: () => cache.invalidateQueries({ queryKey: ['staff-access'] }),
   });
   return <section aria-label="Role activation settings" className="space-y-4 rounded-xl border bg-card p-4">

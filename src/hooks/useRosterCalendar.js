@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 
 export default function useRosterCalendar(weekStart, status, onChanged) {
   const cache = useQueryClient(), locked = useRef(false);
@@ -9,7 +9,7 @@ export default function useRosterCalendar(weekStart, status, onChanged) {
   const from = format(weekStart, 'yyyy-MM-dd'), to = format(addDays(weekStart, 6), 'yyyy-MM-dd');
   const query = useInfiniteQuery({
     queryKey: ['roster-calendar', from, to, status], initialPageParam: null,
-    queryFn: ({ pageParam }) => base44.entities.Shift.filter({ date: { $gte: from, $lte: to }, ...(status === 'all' ? {} : { status }) }, { sort: 'start_time', limit: 100, cursor: pageParam || undefined }),
+    queryFn: ({ pageParam }) => api.entities.Shift.filter({ date: { $gte: from, $lte: to }, ...(status === 'all' ? {} : { status }) }, { sort: 'start_time', limit: 100, cursor: pageParam || undefined }),
     getNextPageParam: page => page.has_more ? page.next_cursor : undefined,
   });
   const shifts = (query.data?.pages.flatMap(page => page.items) || []).map(shift => patch?.id === shift.id ? { ...shift, ...patch } : shift);
@@ -21,7 +21,7 @@ export default function useRosterCalendar(weekStart, status, onChanged) {
     locked.current = true; setMoving(true); setMessage(null); setPatch({ id: shift.id, date, worker_id });
     let saved = false;
     try {
-      const response = await base44.functions.invoke('moveRosterShift', { shift_id: shift.id, date, worker_id, expected_updated_at: shift.updated_date });
+      const response = await api.functions.invoke('moveRosterShift', { shift_id: shift.id, date, worker_id, expected_updated_at: shift.updated_date });
       saved = true;
       setMessage({ text: `Shift moved to ${format(new Date(`${date}T00:00:00`), 'EEE d MMM')} · ${response.data.shift.worker_name || 'Unassigned'}. Times unchanged. ${response.data.warning || ''}`, error: false });
       await Promise.all([cache.invalidateQueries({ queryKey: ['roster-calendar'] }), onChanged?.()]);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/client';
 import { Link } from 'react-router-dom';
 import { HardDrive, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ export default function Storage() {
   const [access, setAccess] = useState('loading');
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    base44.auth.me().then(user => setAccess(user.role === 'admin' ? 'allowed' : 'denied')).catch(() => setAccess('denied'));
+    api.auth.me().then(user => setAccess(user.role === 'admin' ? 'allowed' : 'denied')).catch(() => setAccess('denied'));
   }, []);
   if (access === 'loading') return <div className="flex justify-center p-12"><Loader2 aria-label="Checking storage access" className="animate-spin text-primary" /></div>;
   if (access === 'denied') return <main className="max-w-3xl mx-auto p-6 space-y-4"><h1 className="font-heading text-2xl font-bold">Storage access restricted</h1><p>Only admins and the current CEO can open storage settings.</p><Button asChild variant="outline"><Link to="/">Back to home</Link></Button></main>;

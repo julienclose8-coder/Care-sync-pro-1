@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from '@/api/client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import ClientSettingOptions from "@/components/clients/ClientSettingOptions";
@@ -12,7 +12,7 @@ export default function ClientSettingDialog({ client, onSaved }) {
     e.preventDefault();
     if (!form.support_setting) return;
     setSaving(true); setError("");
-    try { await base44.entities.Client.update(client.id, settingPayload(form)); await onSaved(); setOpen(false); }
+    try { await api.entities.Client.update(client.id, settingPayload(form)); await onSaved(); setOpen(false); }
     catch (err) { setError(err.message || "Unable to save the support setting."); }
     finally { setSaving(false); }
   };
