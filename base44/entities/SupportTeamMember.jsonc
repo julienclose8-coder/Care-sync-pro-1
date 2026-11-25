@@ -1,0 +1,42 @@
+{
+  "name": "SupportTeamMember",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string"
+    },
+    "worker_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "client_id",
+    "worker_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": null,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 172 66% 29%;
+    --roster-ready: 142 71% 35%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 170 60% 55%;
+    --roster-ready: 142 60% 50%;
+    --primary-foreground: 172 65% 8%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+/* Additive Android/iOS WebView behavior; preserve existing utility spacing. */
+html, body { overscroll-behavior: none; }
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+main, [class~="overflow-auto"], [class~="overflow-y-auto"], [class~="overflow-x-auto"], [class~="overflow-scroll"], [class~="overflow-y-scroll"], [class~="overflow-x-scroll"] {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+:is(.fixed, .sticky) {
+  padding-top: calc(var(--safe-padding-top, 0px) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--safe-padding-bottom, 0px) + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(var(--safe-padding-inline, 0px) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--safe-padding-inline, 0px) + env(safe-area-inset-right, 0px));
+}
+:is(.fixed, .sticky)[class~="p-5"] { --safe-padding-top: 1.25rem; --safe-padding-bottom: 1.25rem; --safe-padding-inline: 1.25rem; }
+:is(.fixed, .sticky)[class~="p-6"] { --safe-padding-top: 1.5rem; --safe-padding-bottom: 1.5rem; --safe-padding-inline: 1.5rem; }
+:is(.fixed, .sticky)[class~="px-4"] { --safe-padding-inline: 1rem; }
+:is(.fixed, .sticky)[class~="px-2"] { --safe-padding-inline: 0.5rem; }
+:is(.fixed, .sticky)[class~="px-1.5"] { --safe-padding-inline: 0.375rem; }
+:is(.fixed, .sticky)[class~="py-3"] { --safe-padding-top: 0.75rem; --safe-padding-bottom: 0.75rem; }
+:is(.fixed, .sticky)[class~="py-2"] { --safe-padding-top: 0.5rem; --safe-padding-bottom: 0.5rem; }
+:is(.fixed, .sticky)[class~="py-1.5"] { --safe-padding-top: 0.375rem; --safe-padding-bottom: 0.375rem; }
+/* A top header owns the inset instead of adding it again to the body. */
+body:has(.safe-area-top) { padding-top: 0; }
+.safe-area-top { padding-top: calc(var(--safe-padding-top, 0px) + var(--header-safe-area-top, env(safe-area-inset-top, 0px))); }
+/* Subpage content is already below the notch-safe home navigation. */
+nav[aria-label="Home navigation"] ~ * { --header-safe-area-top: 0px; }
+nav[aria-label="Home navigation"] { height: calc(3.5rem + env(safe-area-inset-top, 0px)); padding-bottom: 0; }
+:is(.sticky, .fixed).top-14 { top: calc(3.5rem + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px)); }
+.admin-mobile-nav { overscroll-behavior: contain; }
+button, nav, [role="button"], [role="tab"], [role="tablist"], .tabs-trigger, [data-slot="badge"], .lucide, .icon {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+textarea, input, article, p, .whitespace-pre-wrap, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+@media (max-width: 767px) {
+  .admin-content { padding-bottom: calc(10rem + env(safe-area-inset-bottom, 0px) + env(safe-area-inset-top, 0px)); }
+  .preview-admin { bottom: calc(6rem + env(safe-area-inset-bottom, 0px) + env(safe-area-inset-top, 0px)); }
+}
+@media (max-width: 767px) {
+  button, a[href], input:not([type="hidden"]), select, textarea, [role="button"], [role="tab"], [role="checkbox"], [role="radio"], [role="switch"], [role="combobox"], [role="option"], [role="menuitem"], [role="slider"], [class~="cursor-pointer"], [tabindex]:not([tabindex="-1"]), summary, label[for] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  a[href]:not(.inline-flex):not(.flex), label[for] { display: inline-flex; align-items: center; }
+  .text-xs { font-size: max(14px, 0.75rem); }
+}
+
+/* Stat Card (designed component) — container query + dot reveal */
+.sc1-section { container: sc1-root / inline-size; }
+.sc1-card { container-type: inline-size; }
+.sc1-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.3;
+  transform: scale(0.82);
+  animation: sc1-shimmer 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--sc1-d, 0s) 1 forwards;
+  animation-play-state: paused;
+}
+.sc1-reveal .sc1-dot { animation-play-state: running; }
+@keyframes sc1-shimmer {
+  0%   { opacity: 0.3; transform: scale(0.82); }
+  60%  { opacity: 1;   transform: scale(1.06); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc1-dot { animation: none; opacity: 1; transform: none; }
+}
+
+@layer utilities {
+  .border-roster-ready { border-color: hsl(var(--roster-ready)); }
+  .bg-roster-ready\/10 { background-color: hsl(var(--roster-ready) / 0.1); }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

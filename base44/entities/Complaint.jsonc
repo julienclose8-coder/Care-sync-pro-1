@@ -1,0 +1,177 @@
+{
+  "name": "Complaint",
+  "type": "object",
+  "properties": {
+    "reference": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "complaint_type": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "external"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "service",
+        "staff_conduct",
+        "safety",
+        "billing",
+        "privacy",
+        "other"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "desired_outcome": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "reporter_id": {
+      "type": "string"
+    },
+    "reporter_name": {
+      "type": "string"
+    },
+    "complainant_name": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "contact_details": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "relationship": {
+      "type": "string",
+      "enum": [
+        "worker",
+        "client",
+        "caregiver",
+        "other"
+      ]
+    },
+    "received_via": {
+      "type": "string",
+      "enum": [
+        "app",
+        "phone",
+        "email",
+        "in_person",
+        "other"
+      ]
+    },
+    "received_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "incident_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "received",
+        "acknowledged",
+        "investigating",
+        "resolved",
+        "closed"
+      ],
+      "default": "received"
+    },
+    "assigned_handler": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "internal_notes": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "resolution": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "resolved_at": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "activity": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "by",
+          "text"
+        ]
+      }
+    }
+  },
+  "required": [
+    "reference",
+    "title",
+    "complaint_type",
+    "category",
+    "description",
+    "reporter_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

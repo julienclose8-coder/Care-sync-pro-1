@@ -1,0 +1,94 @@
+{
+  "name": "ShiftHistory",
+  "type": "object",
+  "properties": {
+    "shift_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "reassigned",
+        "moved",
+        "cancelled",
+        "deleted",
+        "called_in_sick",
+        "replacement_cleared"
+      ]
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "actor_name": {
+      "type": "string"
+    },
+    "actor_role": {
+      "type": "string"
+    },
+    "locked_at_change": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the shift was within the seven-day roster lock at the time of the change"
+    },
+    "detail": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "shift_id",
+    "action"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
