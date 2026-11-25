@@ -23,7 +23,7 @@ jobs:
         with:
           version: latest
       - name: Deploy the api function
-        run: supabase functions deploy api --project-ref "$PROJECT_REF" --use-api
+        run: supabase functions deploy api --project-ref "$PROJECT_REF" --use-api --yes
 
   build:
     runs-on: ubuntu-latest
