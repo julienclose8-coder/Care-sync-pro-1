@@ -29,7 +29,7 @@ Function secrets, set in Supabase under Edge Functions > Secrets:
 
 | Secret | Purpose |
 | --- | --- |
-| `ALLOWED_ORIGINS` | Optional. Comma-separated origins allowed to call the API. Defaults to `https://caresyncpro1.com,https://www.caresyncpro1.com,http://localhost:5173`. |
+| `ALLOWED_ORIGINS` | Optional. Comma-separated origins allowed to call the API. Defaults to `https://caresyncpro1.com,https://www.caresyncpro1.com,https://care-sync-pro-1.netlify.app,http://localhost:5173`. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Optional. Sends app emails through Resend. Emails are skipped when unset. |
 | `ANTHROPIC_API_KEY` | Optional. Enables the AI care-note and roster helpers. Only set this once you have decided client information may be sent to the AI provider. |
 | `ANTHROPIC_MODEL` | Optional. Overrides the AI model (default `claude-opus-5-5`). |
