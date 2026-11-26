@@ -1,0 +1,25 @@
+# Website hosting on Netlify. Netlify rebuilds the site from GitHub on every
+# merge to main. The two VITE_ values are public (they ship to the browser).
+[build]
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  VITE_SUPABASE_URL = "https://wcrbdotwhvbukzcscktb.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DmIlnLesXNtua_lgHma2OQ_zzf03s0E"
+
+# Single-page app: send every page address to index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"

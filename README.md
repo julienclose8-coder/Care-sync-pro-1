@@ -34,14 +34,7 @@ Function secrets, set in Supabase under Edge Functions > Secrets:
 | `ANTHROPIC_API_KEY` | Optional. Enables the AI care-note and roster helpers. Only set this once you have decided client information may be sent to the AI provider. |
 | `ANTHROPIC_MODEL` | Optional. Overrides the AI model (default `claude-opus-5-5`). |
 
-**Website:** `npm run build` and upload the contents of `dist/` to the web root for caresyncpro1.com (for example `public_html` on cPanel). The app is a single-page app, so add this `.htaccess` next to `index.html`:
-
-```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [L]
-```
+**Website:** hosted on Netlify, which rebuilds and publishes the site from `main` automatically using `netlify.toml` (build settings, page routing and security headers). The domain caresyncpro1.com points to Netlify through DNS records in cPanel; email stays on cPanel.
 
 The workflow also uploads a built `website` artifact you can download and upload.
 
