@@ -6,6 +6,7 @@ import WorkerPortal from "@/components/portals/WorkerPortal";
 import ClientPortal from "@/components/portals/ClientPortal";
 import PreviewSwitcher from "@/components/PreviewSwitcher";
 import RoleSettingsLink from '@/components/access/RoleSettingsLink';
+import { toast } from '@/components/ui/use-toast';
 
 export default function Home() {
   const [view, setView] = useState(null);
@@ -35,7 +36,10 @@ export default function Home() {
     if (mode === "client") {
       const clients = await api.entities.Client.list().catch(() => []);
       const client = clients[0];
-      if (!client) return;
+      if (!client) {
+        toast({ title: 'No clients yet', description: 'Add a client first, then you can preview the client portal as them.' });
+        return;
+      }
       setDemoData((d) => ({
         ...(d || {}),
         client,
