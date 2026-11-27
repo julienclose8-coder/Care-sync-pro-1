@@ -69,14 +69,23 @@ export default function ClientDetail() {
   const [formOpen, setFormOpen] = useState(false);
 
   const loadCore = useCallback(async () => {
-    const [c, s, w] = await Promise.all([
+    const [c, s, w, profiles] = await Promise.all([
       api.entities.Client.get(id),
       api.entities.Shift.filter({ client_id: id }),
       api.entities.User.list(),
+      api.entities.Worker.list().catch(() => []),
     ]);
     setClient(c);
     setShifts(s);
-    setWorkers(w.filter((u) => u.role !== "admin"));
+    // Same worker list as the roster: sign-in accounts plus worker profiles added by an admin.
+    const accounts = w.filter((u) => u.role !== "admin");
+    const accountEmails = new Set(accounts.map((u) => (u.email || "").toLowerCase()).filter(Boolean));
+    setWorkers([
+      ...accounts.map((u) => ({ ...u, worker_source: "user" })),
+      ...profiles
+        .filter((p) => !p.email || !accountEmails.has(p.email.toLowerCase()))
+        .map((p) => ({ ...p, role: "worker", worker_source: "profile" })),
+    ]);
   }, [id]);
 
   usePageRefresh(loadCore);
