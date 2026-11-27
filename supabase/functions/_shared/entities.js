@@ -33,10 +33,15 @@ export const TABLES = {
   Worker: 'workers',
   WorkerLeaveRequest: 'worker_leave_requests',
   WorkerPayment: 'worker_payments',
+  Organisation: 'organisations',
+  OrganisationInvitation: 'organisation_invitations',
 };
 
+// Tables that are not split by organisation (they are the organisations themselves).
+const UNSCOPED = new Set(['organisations']);
+
 const COLUMN = /^[a-z_][a-z0-9_]*$/;
-const READ_ONLY = ['id', 'created_date', 'updated_date', 'created_by_id'];
+const READ_ONLY = ['id', 'created_date', 'updated_date', 'created_by_id', 'organisation_id'];
 
 export class ApiError extends Error {
   constructor(message, status = 500, data = undefined) {
@@ -179,14 +184,14 @@ const decodeCursor = cursor => {
 };
 
 // Fetch with a hard cap; PostgREST pages are 1000 rows by default.
-async function fetchRows(client, table, { query, sort, limit, skip = 0, fields }) {
+async function fetchRows(client, table, { query, sort, limit, skip = 0, fields, scope = b => b }) {
   const max = limit ?? 5000;
   const rows = [];
   let offset = skip;
   while (rows.length < max) {
     const size = Math.min(1000, max - rows.length);
     let builder = client.from(table).select(fields?.length ? ['id', ...fields.map(column)].join(',') : '*');
-    builder = applySort(applyQuery(builder, query, table), sort || '-created_date');
+    builder = applySort(applyQuery(scope(builder), query, table), sort || '-created_date');
     const { data, error } = await builder.range(offset, offset + size - 1);
     if (error) fail(error);
     rows.push(...data);
@@ -196,10 +201,33 @@ async function fetchRows(client, table, { query, sort, limit, skip = 0, fields }
   return rows;
 }
 
+// options.organisationId: for server code using the service role (which skips the
+// database access rules). An async function giving the caller's organisation id; every
+// read, change and delete is then limited to that organisation, and new records are
+// put in it. Without an organisation the call is refused.
+// options.platform: server-only, for platform admin actions. New records may then name
+// their organisation_id (normally it always comes from the signed-in person).
 /** @returns {Record<string, any>} */
-export function createEntity(client, name, { realtime } = {}) {
+export function createEntity(client, name, { realtime, organisationId, platform } = {}) {
   const table = TABLES[name];
   if (!table) throw new ApiError(`Unknown record type: ${name}`, 400);
+  const scoped = !!organisationId && !UNSCOPED.has(table);
+  const orgId = async () => {
+    const id = scoped ? await organisationId() : null;
+    if (scoped && !id) throw new ApiError('Your account is not linked to an organisation yet. Ask your manager to add you.', 403);
+    return id;
+  };
+  // Adds "organisation_id = caller's organisation" to a query builder.
+  const scope = async () => {
+    const id = await orgId();
+    return builder => (id ? builder.eq('organisation_id', id) : builder);
+  };
+  const cleanNew = data => (platform && data?.organisation_id ? { ...cleanRecord(data), organisation_id: data.organisation_id } : cleanRecord(data));
+  // Puts new records in the caller's organisation.
+  const stamp = async records => {
+    const id = await orgId();
+    return id ? records.map(r => ({ ...r, organisation_id: id })) : records;
+  };
 
   // filter(query, sort?, limit?, skip?) returns an array.
   // filter(query, { sort, limit, cursor, fields }) returns { items, has_more, next_cursor }.
@@ -208,12 +236,12 @@ export function createEntity(client, name, { realtime } = {}) {
     if (sortOrOptions && typeof sortOrOptions === 'object') {
       const { sort, limit: pageSize = 50, cursor, fields } = sortOrOptions;
       const offset = cursor ? decodeCursor(cursor) : 0;
-      const rows = await fetchRows(client, table, { query, sort, limit: pageSize + 1, skip: offset, fields });
+      const rows = await fetchRows(client, table, { query, sort, limit: pageSize + 1, skip: offset, fields, scope: await scope() });
       const has_more = rows.length > pageSize;
       const items = rows.slice(0, pageSize);
       return { items, has_more, next_cursor: has_more ? encodeCursor(offset + pageSize) : null };
     }
-    return fetchRows(client, table, { query, sort: sortOrOptions, limit, skip });
+    return fetchRows(client, table, { query, sort: sortOrOptions, limit, skip, scope: await scope() });
   }
 
   return {
@@ -221,29 +249,30 @@ export function createEntity(client, name, { realtime } = {}) {
     filter,
     async get(id) {
       if (UUID_COLUMNS[table]?.has('id') && !(typeof id === 'string' && UUID.test(id))) throw new ApiError(`${name} not found`, 404);
-      const { data, error } = await client.from(table).select('*').eq('id', id).maybeSingle();
+      const { data, error } = await (await scope())(client.from(table).select('*').eq('id', id)).maybeSingle();
       if (error) fail(error);
       if (!data) throw new ApiError(`${name} not found`, 404);
       return data;
     },
     async count(query = {}) {
-      const { count, error } = await applyQuery(client.from(table).select('id', { count: 'exact', head: true }), query, table);
+      const { count, error } = await applyQuery((await scope())(client.from(table).select('id', { count: 'exact', head: true })), query, table);
       if (error) fail(error);
       return count || 0;
     },
     async create(data) {
-      const { data: row, error } = await client.from(table).insert(cleanRecord(data)).select().single();
+      const [record] = await stamp([cleanNew(data)]);
+      const { data: row, error } = await client.from(table).insert(record).select().single();
       if (error) fail(error);
       return row;
     },
     async bulkCreate(records) {
       if (!records?.length) return [];
-      const { data, error } = await client.from(table).insert(records.map(cleanRecord)).select();
+      const { data, error } = await client.from(table).insert(await stamp(records.map(cleanNew))).select();
       if (error) fail(error);
       return data;
     },
     async update(id, data) {
-      const { data: row, error } = await client.from(table).update(cleanRecord(data)).eq('id', id).select().maybeSingle();
+      const { data: row, error } = await (await scope())(client.from(table).update(cleanRecord(data)).eq('id', id)).select().maybeSingle();
       if (error) fail(error);
       if (!row) throw new ApiError(`${name} not found`, 404);
       return row;
@@ -254,25 +283,35 @@ export function createEntity(client, name, { realtime } = {}) {
       if (!Object.keys(values).length) return { updated: 0 };
       const terms = compileQuery(query, UUID_COLUMNS[table], new Set(ARRAY_COLUMNS[table] || []));
       if (!terms.length) throw new ApiError('Refusing to update every record without a filter', 400);
-      const { data, error } = await applyQuery(client.from(table).update(values), query, table).select('id');
+      const { data, error } = await applyQuery((await scope())(client.from(table).update(values)), query, table).select('id');
       if (error) fail(error);
       return { updated: data.length };
     },
-    // upsert(records, { key }) inserts or updates on a unique column.
+    // upsert(records, { key }) inserts or updates on a unique column. Unique columns
+    // other than id are unique per organisation, so the organisation is part of the key.
     async upsert(records, { key = 'id' } = {}) {
       const list = Array.isArray(records) ? records : [records];
-      const { data, error } = await client.from(table).upsert(list.map(r => ({ ...cleanRecord(r), ...(r.id && key === 'id' ? { id: r.id } : {}) })), { onConflict: column(key) }).select();
+      const rows = await stamp(list.map(r => ({ ...cleanRecord(r), ...(r.id && key === 'id' ? { id: r.id } : {}) })));
+      if (key === 'id' && scoped && rows.some(r => r.id)) {
+        // Never let an upsert by id take over another organisation's record.
+        const ids = rows.filter(r => r.id).map(r => r.id);
+        const { data: clash, error: clashError } = await client.from(table).select('id').in('id', ids).neq('organisation_id', await orgId());
+        if (clashError) fail(clashError);
+        if (clash.length) throw new ApiError(`${name} not found`, 404);
+      }
+      const conflict = key !== 'id' && !UNSCOPED.has(table) ? `organisation_id,${column(key)}` : column(key);
+      const { data, error } = await client.from(table).upsert(rows, { onConflict: conflict }).select();
       if (error) fail(error);
       return data;
     },
     async delete(id) {
-      const { error } = await client.from(table).delete().eq('id', id);
+      const { error } = await (await scope())(client.from(table).delete().eq('id', id));
       if (error) fail(error);
       return { id };
     },
     async deleteMany(query) {
       if (!compileQuery(query, UUID_COLUMNS[table], new Set(ARRAY_COLUMNS[table] || [])).length) throw new ApiError('Refusing to delete every record without a filter', 400);
-      const { data, error } = await applyQuery(client.from(table).delete(), query, table).select('id');
+      const { data, error } = await applyQuery((await scope())(client.from(table).delete()), query, table).select('id');
       if (error) fail(error);
       return { deleted: data.length };
     },

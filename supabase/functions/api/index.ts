@@ -10,6 +10,7 @@ import deleteOwnAccount from './handlers/deleteOwnAccount.ts';
 import findReplacement from './handlers/findReplacement.ts';
 import getClientTeam from './handlers/getClientTeam.ts';
 import moveRosterShift from './handlers/moveRosterShift.ts';
+import organisations from './handlers/organisations.ts';
 import rosterAcknowledgements from './handlers/rosterAcknowledgements.ts';
 import rosterInsights from './handlers/rosterInsights.ts';
 import rosterRecommendations from './handlers/rosterRecommendations.ts';
@@ -28,6 +29,7 @@ const handlers: Record<string, (req: Request) => Promise<Response>> = {
   findReplacement,
   getClientTeam,
   moveRosterShift,
+  organisations,
   rosterAcknowledgements,
   rosterInsights,
   rosterRecommendations,

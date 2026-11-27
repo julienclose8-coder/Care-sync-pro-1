@@ -9,6 +9,14 @@ Care agency app for NDIS and disability support: clients, care notes, rosters, t
   - Private `documents` storage bucket; files open through short-lived signed links.
   - One Edge Function, `api`, that serves every server action (`supabase/functions/api/`).
 
+## Organisations (multi-company)
+
+Each care agency using the app is an **organisation**. Every record has an `organisation_id`, and a restrictive Row Level Security policy on every table means people only ever see their own organisation's records, on top of the usual admin / worker / client rules.
+
+- People join an organisation when an admin adds a worker or client record with their email, or sends an invitation (Organisation page). If they signed up first, they are linked as soon as that record or invitation is added. One account belongs to one organisation.
+- Platform admins (`profiles.is_platform_admin`, set by hand in the database) add new organisations and invite each one's first admin from the Organisation page.
+- Server functions: `app.asServiceRole.entities` is limited to the caller's organisation automatically. `platformEntities()` is not, and is only for platform admin actions.
+
 ## Run locally
 
 ```bash

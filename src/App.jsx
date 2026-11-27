@@ -24,6 +24,7 @@ const PolicyDocuments = lazy(() => import('@/pages/PolicyDocuments'));
 const Storage = lazy(() => import('@/pages/Storage'));
 const Complaints = lazy(() => import('@/pages/Complaints'));
 const StaffAccess = lazy(() => import('@/pages/StaffAccess'));
+const Organisation = lazy(() => import('@/pages/Organisation'));
 import { ThemeProvider } from 'next-themes';
 import PageRefreshProvider from '@/components/mobile/PageRefreshProvider';
 
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/storage" element={<Storage />} />
         <Route path="/complaints" element={<Complaints />} />
         <Route path="/staff-access" element={<StaffAccess />} />
+        <Route path="/organisation" element={<Organisation />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

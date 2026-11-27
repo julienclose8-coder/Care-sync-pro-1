@@ -5,6 +5,10 @@
 //   app.entities      table access AS the caller, so the database access rules apply
 //   app.asServiceRole table access that bypasses the access rules, plus email and AI
 //                     helpers. Use it only after the function has checked permissions.
+//                     It is still limited to the caller's organisation (company).
+//
+// platformEntities() is unlimited table access across every organisation. Only for
+// platform admin actions (adding organisations), after checking is_platform_admin.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import Anthropic from 'npm:@anthropic-ai/sdk@1';
 import { ApiError, createEntities } from './entities.js';
@@ -16,7 +20,9 @@ const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 let serviceClient: SupabaseClient | null = null;
 const service = () => (serviceClient ??= createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } }));
 
-export type AppUser = { id: string; email: string; full_name: string; role: string; is_owner?: boolean; [key: string]: unknown };
+export type AppUser = { id: string; email: string; full_name: string; role: string; is_owner?: boolean; organisation_id?: string | null; is_platform_admin?: boolean; [key: string]: unknown };
+
+export const platformEntities = () => createEntities(service(), { platform: true });
 
 export function createAppClient(req: Request) {
   const authorization = req.headers.get('Authorization') || '';
@@ -47,7 +53,7 @@ export function createAppClient(req: Request) {
     },
     entities: createEntities(userClient),
     asServiceRole: {
-      entities: createEntities(service()),
+      entities: createEntities(service(), { organisationId: async () => (await loadMe())?.organisation_id || null }),
       auth: {
         deleteUser: async (id: string) => {
           const { error } = await service().auth.admin.deleteUser(id);
