@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from '@/api/client';
 import {
   LayoutDashboard, Users, CalendarDays, Wallet, HeartHandshake, LogOut, Loader2, UserCog, ClipboardList, FileText,
-  ShieldCheck, ListChecks, Sparkles,
+  ShieldCheck, ListChecks, Sparkles, Building2,
 } from "lucide-react";
 import Overview from "./Overview";
 import ClientsSection from "@/components/clients/ClientsSection";
@@ -38,6 +38,7 @@ const NAV = [
   { id: "staff-access", label: "Staff access levels", icon: ShieldCheck },
   { id: "storage", label: "Storage", icon: FileText },
   { id: "complaints", label: "Complaints", icon: ClipboardList },
+  { id: "organisation", label: "Organisation", icon: Building2 },
 ];
 
 export default function AdminShell({ user }) {
@@ -87,7 +88,7 @@ export default function AdminShell({ user }) {
           {NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => ['storage', 'complaints', 'staff-access'].includes(id) ? navigate(`/${id}`) : setSection(id)}
+              onClick={() => ['storage', 'complaints', 'staff-access', 'organisation'].includes(id) ? navigate(`/${id}`) : setSection(id)}
               className={cn(
                 "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 section === id
@@ -130,7 +131,7 @@ export default function AdminShell({ user }) {
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => ['storage', 'complaints', 'staff-access'].includes(id) ? navigate(`/${id}`) : setSection(id)}
+                onClick={() => ['storage', 'complaints', 'staff-access', 'organisation'].includes(id) ? navigate(`/${id}`) : setSection(id)}
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
                   section === id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -165,7 +166,7 @@ export default function AdminShell({ user }) {
           )}
         </main>
       </div>
-      <BottomTabBar section={section} items={NAV} onReselect={() => setTabRootVersion(version => version + 1)} onNavigate={id => ['storage', 'complaints', 'staff-access'].includes(id) ? navigate(`/${id}`) : setSection(id)} />
+      <BottomTabBar section={section} items={NAV} onReselect={() => setTabRootVersion(version => version + 1)} onNavigate={id => ['storage', 'complaints', 'staff-access', 'organisation'].includes(id) ? navigate(`/${id}`) : setSection(id)} />
     </div>
   );
 }
