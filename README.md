@@ -42,9 +42,7 @@ Function secrets, set in Supabase under Edge Functions > Secrets:
 | `ANTHROPIC_API_KEY` | Optional. Enables the AI care-note and roster helpers. Only set this once you have decided client information may be sent to the AI provider. |
 | `ANTHROPIC_MODEL` | Optional. Overrides the AI model (default `claude-opus-5-5`). |
 
-**Website:** hosted on Netlify, which rebuilds and publishes the site from `main` automatically using `netlify.toml` (build settings, page routing and security headers). The domain caresyncpro1.com points to Netlify through DNS records in cPanel; email stays on cPanel.
-
-The workflow also uploads a built `website` artifact you can download and upload.
+**Website:** hosted on cPanel at caresyncpro1.com. The workflow `.github/workflows/deploy-website.yml` builds the site and uploads it over FTPS to `public_html` on every merge to `main` (or when run by hand). It needs three repository secrets: `FTP_SERVER` (the cPanel server hostname), `FTP_USERNAME` and `FTP_PASSWORD` (an FTP account whose directory is `public_html`). `public/.htaccess` handles page routing, HTTPS and security headers. `netlify.toml` remains only as a fallback host.
 
 ## Supabase Auth settings
 
