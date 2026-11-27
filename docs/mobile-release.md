@@ -8,6 +8,7 @@ app (not loaded from the website), and the app talks to the same Supabase backen
 | --- | --- |
 | App ID (both stores) | `com.caresyncpro1.app` |
 | Display name | CareSync Pro |
+| Devices | Android phones and tablets; iPhone only (runs on iPad in iPhone mode, so no iPad screenshots are needed) |
 | Native projects | `android/` (Gradle) and `ios/App/App.xcodeproj` (Swift Package Manager) |
 | Config | `capacitor.config.json` |
 | Icon and splash sources | `assets/` (regenerate with `npm run app:icons`) |
