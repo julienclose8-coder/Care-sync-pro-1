@@ -3,6 +3,7 @@
 // `api.files`; nothing else talks to the backend directly.
 import { createClient } from '@supabase/supabase-js';
 import { ApiError, createEntities } from '../../supabase/functions/_shared/entities.js';
+import { publicOrigin } from '@/lib/native';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -64,7 +65,7 @@ const auth = {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: full_name ? { full_name } : {}, emailRedirectTo: window.location.origin },
+      options: { data: full_name ? { full_name } : {}, emailRedirectTo: publicOrigin() },
     });
     if (error) throw authError(error, 'Registration failed');
   },
@@ -82,7 +83,7 @@ const auth = {
 
   async resetPasswordRequest(email) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${publicOrigin()}/reset-password`,
     });
     if (error) throw authError(error, 'Unable to send reset email');
   },

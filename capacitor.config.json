@@ -1,0 +1,18 @@
+{
+  "appId": "com.caresyncpro1.app",
+  "appName": "CareSync Pro",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#197b6e",
+      "showSpinner": false
+    }
+  }
+}
