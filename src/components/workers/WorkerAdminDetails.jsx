@@ -1,11 +1,17 @@
 import React from "react";
 import { api } from "@/api/client";
+import { isNativeApp, openExternal } from "@/lib/native";
 import { BadgeCheck, Banknote, FileText, Timer } from "lucide-react";
 
 const Row = ({ label, value }) => <div><p className="text-xs text-muted-foreground">{label}</p><p className="text-sm">{value || "—"}</p></div>;
 
 // Documents are private; open each one through a short-lived signed link.
 async function openDocument(fileUrl) {
+  if (isNativeApp) {
+    try { await openExternal(await api.files.openUrl(fileUrl)); }
+    catch { window.alert("This document could not be opened. You may not have access to it."); }
+    return;
+  }
   const tab = window.open("", "_blank");
   if (tab) tab.opener = null;
   try {

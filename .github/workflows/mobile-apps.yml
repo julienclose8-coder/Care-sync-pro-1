@@ -1,0 +1,152 @@
+name: Phone apps
+
+# Builds the Android and iPhone apps from the same code as the website.
+# - On pull requests: test builds (unsigned) to catch problems early.
+# - Run by hand (Actions > Phone apps > Run workflow): store builds.
+#   Android: a signed .aab file to upload to Google Play (download it from the run).
+#   iPhone: uploaded straight to App Store Connect / TestFlight.
+# Setup and secrets: docs/mobile-release.md.
+
+on:
+  pull_request:
+    paths:
+      - 'android/**'
+      - 'ios/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/lib/native.js'
+      - '.github/workflows/mobile-apps.yml'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Which app to build for the stores
+        type: choice
+        options: [both, android, ios]
+        default: both
+
+permissions:
+  contents: read
+
+env:
+  # Public values (they also ship in the website).
+  VITE_SUPABASE_URL: https://wcrbdotwhvbukzcscktb.supabase.co
+  VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_DmIlnLesXNtua_lgHma2OQ_zzf03s0E
+  # Each run gets a higher build number, which both stores require.
+  BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  android:
+    if: github.event_name == 'pull_request' || inputs.platform != 'ios'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build the web app and copy it into the Android project
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+      - name: Test build (unsigned)
+        if: github.event_name == 'pull_request'
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - name: Store build (signed .aab)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Add the ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_ALIAS repository secrets first (docs/mobile-release.md)."
+            exit 1
+          fi
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.keystore"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE_PATH"
+          export VERSION_CODE="$((100 + BUILD_NUMBER))"
+          export VERSION_NAME="$(node -p "require('../package.json').version")"
+          ./gradlew bundleRelease --no-daemon
+          rm -f "$ANDROID_KEYSTORE_PATH"
+      - name: Save the .aab for download
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: caresync-pro-android-${{ github.run_number }}
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+  ios:
+    if: github.event_name == 'pull_request' || inputs.platform != 'android'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build the web app and copy it into the iPhone project
+        run: |
+          npm ci
+          npm run build
+          npx cap sync ios
+      - name: Test build (simulator, unsigned)
+        if: github.event_name == 'pull_request'
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build | tail -n 40
+          exit "${PIPESTATUS[0]}"
+      - name: Store build (signed, uploaded to App Store Connect)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
+        run: |
+          if [ -z "$APPLE_TEAM_ID" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_KEY_P8" ]; then
+            echo "::error::Add the APPLE_TEAM_ID and APP_STORE_CONNECT_KEY_ID / _ISSUER_ID / _KEY_P8 repository secrets first (docs/mobile-release.md)."
+            exit 1
+          fi
+          KEY_PATH="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY_PATH"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          VERSION="$(node -p "require('./package.json').version")"
+
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            "${AUTH[@]}" archive | tail -n 40
+          test "${PIPESTATUS[0]}" -eq 0
+
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            "${AUTH[@]}" | tail -n 40
+          status="${PIPESTATUS[0]}"
+          rm -f "$KEY_PATH"
+          exit "$status"

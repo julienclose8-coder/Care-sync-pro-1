@@ -135,7 +135,7 @@ export async function sendEmail({ to, subject, text, body, html }: EmailRequest)
 
 // ---------------------------------------------------------------- HTTP wrapper
 // Adds CORS for the web app and turns thrown errors into JSON error responses.
-const allowedOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://caresyncpro1.com,https://www.caresyncpro1.com,https://care-sync-pro-1.netlify.app,http://localhost:5173')
+const allowedOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://caresyncpro1.com,https://www.caresyncpro1.com,https://care-sync-pro-1.netlify.app,http://localhost:5173,capacitor://localhost,https://localhost')
   .split(',').map(origin => origin.trim()).filter(Boolean);
 
 function corsHeaders(req: Request) {

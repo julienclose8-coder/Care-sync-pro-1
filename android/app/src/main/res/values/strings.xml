@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CareSync Pro</string>
+    <string name="title_activity_main">CareSync Pro</string>
+    <string name="package_name">com.caresyncpro1.app</string>
+    <string name="custom_url_scheme">com.caresyncpro1.app</string>
+</resources>
